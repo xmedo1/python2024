@@ -1,1 +1,2 @@
-# python2024
+# Python 2024
+Repozytorium z rozwiązaniami zadań z języka Python.
