@@ -69,4 +69,4 @@ Metoda `append()` jest dostępna tylko dla list, a nie dla typu `string`.
 ```python
 L = list(map(pow, range(8)))
 ```
-Metoda `pow()` nie otrzymała żadnych argumentów.
+Metoda `pow()` wymaga dwóch argumentów, a otrzymała tylko 1 argument (`range(8)`).
