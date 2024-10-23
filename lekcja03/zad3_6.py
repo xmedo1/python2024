@@ -1,0 +1,2 @@
+def prostokat(x,y):
+    
