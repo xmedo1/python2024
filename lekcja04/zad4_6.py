@@ -8,6 +8,6 @@ def sum_seq(sequence):
     return sum
 
 
-sekwencja = [1,(2,3),[],[4,(5,6,7)],8,[9]]
+sekwencja = [1, (2, 3), [], [4, (5, 6, 7)], 8, [9]]
 print(f"Sekwencja: {sekwencja}")
 print(f"Suma sekwencji: {sum_seq(sekwencja)}")
