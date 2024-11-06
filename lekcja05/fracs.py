@@ -41,7 +41,7 @@ def div_frac(frac1, frac2):
         raise ValueError("NIE MOZNA DZIELIC PRZEZ ZERO")
     # mnozenie przez odwrotnosc drugiego ulamka
     licznik = frac1[0] * frac2[1]
-    mianownik = frac2[0] * frac2[0]
+    mianownik = frac1[1] * frac2[0]
     return simplify([licznik, mianownik])
 
 

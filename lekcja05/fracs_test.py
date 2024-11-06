@@ -19,7 +19,10 @@ class TestFractions(unittest.TestCase):
         self.assertEqual(fracs.mul_frac([1, 2], [1, 2]), [1, 4])
         self.assertEqual(fracs.mul_frac([0, 2], [21, 2]), self.zero)
 
-    def test_div_frac(self): pass
+    def test_div_frac(self):
+        self.assertEqual(fracs.div_frac([1, 2], [3, 2]), [1, 3])
+        with self.assertRaises(ValueError):
+            fracs.div_frac([1, 2], [0, 1])
 
     def test_is_positive(self):
         self.assertTrue(fracs.is_positive([1, 2]))
