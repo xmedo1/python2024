@@ -55,12 +55,6 @@ class SingleList:
         self.length -= 1
         return node
 
-    def __iter__(self):
-        node = self.head
-        while node:
-            yield node.data
-            node = node.next
-
     def remove_tail(self):
         if self.is_empty():
             raise ValueError("Lista jest pusta")
@@ -103,7 +97,7 @@ class SingleList:
     def search(self, data):
         current = self.head
         while current is not None:
-            if current.value == data:
+            if current.data == data:
                 return current
             current = current.next
         return None
