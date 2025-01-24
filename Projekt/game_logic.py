@@ -1,4 +1,5 @@
 from constants import *
+import random
 
 
 def is_safe_to_place(board, x, y, size, orientation):
@@ -41,9 +42,33 @@ def add_ships_from_random_board(board, placed_ships):
                 else:
                     placed_ships.append((x, y, size, "H"))
 
+
 def is_ship_sunk(board, x, y, size, orientation):
     for i in range(size):
         nx, ny = (x, y + i) if orientation == "H" else (x + i, y)
         if board[nx][ny] > 0:
             return False
     return True
+
+
+def process_shot(board, x, y):
+    if board[x][y] > 0:  # Hit
+        board[x][y] = -1
+        return "hit"
+    elif board[x][y] == 0:  # Miss
+        board[x][y] = -2
+        return "miss"
+    return None  # Already shot
+
+
+def computer_shot(board):
+    while True:
+        x = random.randint(0, BOARD_SIZE - 1)
+        y = random.randint(0, BOARD_SIZE - 1)
+
+        if board[x][y] == 0:
+            board[x][y] = -2
+            break
+        elif board[x][y] > 0:
+            board[x][y] = -1
+            break

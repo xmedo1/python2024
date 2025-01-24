@@ -10,6 +10,7 @@ selected_ship = None
 selected_offset = (0, 0)
 ship_orientation = "H"
 game_state = "setup"
+current_turn = "player"
 
 
 def main():
@@ -21,10 +22,7 @@ def main():
     player_board = [[0 for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
     computer_board = generate_random_board()
 
-    global selected_ship
-    global selected_offset
-    global ship_orientation
-    global game_state
+    global selected_ship, current_turn, selected_offset, ship_orientation, game_state
 
     add_ships_from_random_board(player_board, placed_ships)
     add_ships_from_random_board(computer_board, placed_ships_computer)
@@ -41,7 +39,7 @@ def main():
                         (SCREEN_WIDTH // 2 + 200 + BOARD_SIZE * CELL_SIZE // 2 - text_computer_board.get_width() // 2,
                          25))
             draw_board(screen, player_board, 300, 100)
-            draw_board(screen, computer_board, SCREEN_WIDTH // 2 + 200, 100)
+            draw_board(screen, computer_board, SCREEN_WIDTH // 2 + 200, 100, hide_ships=True)
             button_randomize = draw_button(screen, "Randomize", 300, SCREEN_HEIGHT - 100, 150, 40)
             button_start_game = draw_button(screen, "Start game", 500, SCREEN_HEIGHT - 100, 150, 40)
             draw_ships_to_drag(screen, ships_to_drag, ship_drag_positions)
@@ -145,24 +143,53 @@ def main():
             screen.blit(text_player_board, (50 + BOARD_SIZE * CELL_SIZE // 2 - text_player_board.get_width() // 2, 25))
             screen.blit(text_computer_board, (
                 SCREEN_WIDTH // 2 + BOARD_SIZE * CELL_SIZE // 2 - text_computer_board.get_width() // 2, 25))
-            draw_board(screen, player_board, 50, 100)
-            draw_board(screen, computer_board, SCREEN_WIDTH // 2, 100)
+            draw_board(screen, player_board, 50, 100, is_player=True)
+            draw_board(screen, computer_board, SCREEN_WIDTH // 2, 100, hide_ships=True)
+            sorted_ships = sorted(placed_ships_computer, key=lambda ship: ship[2], reverse=True)
 
-            colors = []
-            # TODO: sinking ship color change
-            # for x, y, size, orientation in placed_ships_computer:
-            #    if is_ship_sunk(computer_board, x, y, size, orientation):
-            #        colors.append(RED)
-            #    else:
-            #        colors.append(BLACK)
+            fill_colors = []
+            for x, y, size, orientation in sorted_ships:
+                if is_ship_sunk(computer_board, x, y, size, orientation):
+                    fill_colors.append(RED)
+                else:
+                    fill_colors.append(BLUE)
 
             font = pygame.font.SysFont(None, 24)
             text_remaining_ships = font.render("Remaining ships:", True, BLACK)
             text_rect = text_remaining_ships.get_rect(center=(SCREEN_WIDTH - 150 + CELL_SIZE // 2, 60))
             screen.blit(text_remaining_ships, text_rect)
-            sorted_ships = sorted(placed_ships_computer, key=lambda ship: ship[2], reverse=True)
-            draw_ships_to_drag(screen, [ship[2] for ship in sorted_ships], [], offset_x=SCREEN_WIDTH - 225,
-                               offset_y=100, colors=colors)
+
+            for i, ship_size in enumerate([ship[2] for ship in sorted_ships]):
+                draw_ships_to_drag(screen, [ship_size], [], offset_x=SCREEN_WIDTH - 225,
+                                   offset_y=100 + i * (CELL_SIZE + 10), fill_color=fill_colors[i])
+
+            for x, y, size, orientation in placed_ships_computer:
+                if is_ship_sunk(computer_board, x, y, size, orientation):
+                    highlight_sunk_ship(screen, x, y, size, orientation, SCREEN_WIDTH // 2, 100)
+
+            for x, y, size, orientation in placed_ships:
+                if is_ship_sunk(player_board, x, y, size, orientation):
+                    highlight_sunk_ship(screen, x, y, size, orientation, 50, 100)
+
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                    elif event.type == pygame.MOUSEBUTTONDOWN and current_turn == "player":
+                        mouse_x, mouse_y = event.pos
+                        grid_x = (mouse_x - (SCREEN_WIDTH // 2)) // CELL_SIZE
+                        grid_y = (mouse_y - 100) // CELL_SIZE
+
+                        if 0 <= grid_x < BOARD_SIZE and 0 <= grid_y < BOARD_SIZE:
+                            if computer_board[grid_y][grid_x] in (-1, -2):
+                                print("You already shot here!")
+                            else:
+                                process_shot(computer_board, grid_y, grid_x)
+                                current_turn = "computer"
+
+                if current_turn == "computer":
+                    computer_shot(player_board)
+                    current_turn = "player"
+
         pygame.display.flip()
         clock.tick(60)
 
