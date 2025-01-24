@@ -11,7 +11,7 @@ selected_ship = None
 selected_offset = (0, 0)
 ship_orientation = "H"
 current_turn = "player"
-game_state = "setup"
+game_state = "start"
 winner = None
 
 
@@ -31,7 +31,53 @@ def main():
 
     running = True
     while running:
-        if game_state == "setup":
+        if game_state == "start":
+            screen.fill(WHITE)
+            font_large = pygame.font.SysFont(None, 250)
+            text_battleships = font_large.render("Battleships", True, BLACK)
+            text_battleships_rect = text_battleships.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3))
+            screen.blit(text_battleships, text_battleships_rect)
+
+            button_easy = draw_button(screen, "Easy Mode", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2, 200, 50)
+            button_hard = draw_button(screen, "Hard Mode", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 75, 200, 50)
+            button_rules = draw_button(screen, "Rules", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 150, 200, 50)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_x, mouse_y = event.pos
+                    if button_easy.collidepoint(mouse_x, mouse_y):
+                        print("Easy Mode selected")
+                        game_state = "setup"
+                    elif button_hard.collidepoint(mouse_x, mouse_y):
+                        print("Hard Mode selected")
+                        game_state = "setup"  # TODO: add hard mode
+                    elif button_rules.collidepoint(mouse_x, mouse_y):
+                        print("Rules selected")
+                        game_state = "rules"
+        elif game_state == "rules":
+            screen.fill(WHITE)
+            font_title = pygame.font.SysFont(None, 48)
+            text_title = font_title.render("Game rules", True, BLACK)
+            text_title_rect = text_title.get_rect(center=(SCREEN_WIDTH // 2, 100))
+            screen.blit(text_title, text_title_rect)
+
+            font_text = pygame.font.SysFont(None, 32)
+
+            for i, line in enumerate(RULES):
+                text_rule = font_text.render(line, True, BLACK)
+                screen.blit(text_rule, (50, 150 + i * 40))
+            button_back = draw_button(screen, "Go back", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT - 100, 200, 50)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_x, mouse_y = event.pos
+                    if button_back.collidepoint(mouse_x, mouse_y):
+                        game_state = "start"
+        elif game_state == "setup":
             screen.fill(WHITE)
             screen.blit(text_player_board, (300 + BOARD_SIZE * CELL_SIZE // 2 - text_player_board.get_width() // 2, 25))
             screen.blit(text_computer_board,
@@ -205,8 +251,8 @@ def main():
             text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3))
             screen.blit(text, text_rect)
 
-            button_retry = draw_button(screen, "Play again", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2, 200, 50)
-            button_exit = draw_button(screen, "Exit", SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 + 100, 200, 50)
+            button_retry = draw_button(screen, "Play again", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2, 200, 50)
+            button_exit = draw_button(screen, "Exit", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 100, 200, 50)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -225,7 +271,7 @@ def main():
                         selected_offset = (0, 0)
                         ship_orientation = "H"
                         current_turn = "player"
-                        game_state = "setup"
+                        game_state = "start"
                         winner = None
 
                     elif button_exit.collidepoint(mouse_x, mouse_y):

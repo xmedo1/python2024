@@ -8,3 +8,11 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+RULES = [
+                "1. Place your ships on the board. You can rotate your ships by pressing `R`. You can also randomize their positions.",
+                "2. Attack your enemy ships, by clicking it's board.",
+                "3. Field with red cross means, that you've hit a ship, but it has not sunk yet.",
+                "4. Red ship means, that ship sank.",
+                "5. The player who first sinks all the enemy's ships wins.",
+                "Good Luck!"
+]
