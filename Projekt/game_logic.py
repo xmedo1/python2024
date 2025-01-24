@@ -9,7 +9,7 @@ def is_safe_to_place(board, x, y, size, orientation):
         for dx in [-1, 0, 1]:
             for dy in [-1, 0, 1]:
                 cx, cy = nx + dx, ny + dy
-                if BOARD_SIZE > cx >= 0 != board[cx][cy] and 0 <= cy < BOARD_SIZE:
+                if 0 <= cx < BOARD_SIZE and 0 <= cy < BOARD_SIZE and board[cx][cy] != 0:
                     return False
     return True
 
@@ -40,3 +40,10 @@ def add_ships_from_random_board(board, placed_ships):
                     placed_ships.append((x, y, size, orientation))
                 else:
                     placed_ships.append((x, y, size, "H"))
+
+def is_ship_sunk(board, x, y, size, orientation):
+    for i in range(size):
+        nx, ny = (x, y + i) if orientation == "H" else (x + i, y)
+        if board[nx][ny] > 0:
+            return False
+    return True
