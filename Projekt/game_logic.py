@@ -1,4 +1,4 @@
-from constants import *
+from board import *
 import random
 
 
@@ -65,10 +65,16 @@ def computer_shot(board):
     while True:
         x = random.randint(0, BOARD_SIZE - 1)
         y = random.randint(0, BOARD_SIZE - 1)
-
         if board[x][y] == 0:
             board[x][y] = -2
             break
         elif board[x][y] > 0:
             board[x][y] = -1
             break
+
+
+def check_victory(board, placed_ships):
+    for x, y, size, orientation in placed_ships:
+        if not is_ship_sunk(board, x, y, size, orientation):
+            return False
+    return True
