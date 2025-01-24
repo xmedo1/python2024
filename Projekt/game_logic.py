@@ -78,3 +78,15 @@ def check_victory(board, placed_ships):
         if not is_ship_sunk(board, x, y, size, orientation):
             return False
     return True
+
+def mark_surrounding_as_missed(board, x, y, size, orientation):
+    for i in range(-1, size + 1):
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                if orientation == "H":
+                    nx, ny = x + dx, y + i
+                else:
+                    nx, ny = x + i, y + dy
+                if 0 <= nx < BOARD_SIZE and 0 <= ny < BOARD_SIZE:
+                    if board[nx][ny] == 0:
+                        board[nx][ny] = -2

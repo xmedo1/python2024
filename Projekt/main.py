@@ -86,7 +86,7 @@ def main():
             draw_board(screen, player_board, 300, 100)
             draw_board(screen, computer_board, SCREEN_WIDTH // 2 + 200, 100, hide_ships=True)
             button_randomize = draw_button(screen, "Randomize", 300, SCREEN_HEIGHT - 100, 150, 40)
-            button_start_game = draw_button(screen, "Start game", 500, SCREEN_HEIGHT - 100, 150, 40)
+            button_start_game = draw_button(screen, "Start game", 650, SCREEN_HEIGHT - 100, 150, 40)
             draw_ships_to_drag(screen, ships_to_drag, ship_drag_positions)
 
             for placed_ship in placed_ships:
@@ -197,7 +197,7 @@ def main():
             screen.blit(text_computer_board, (
                 SCREEN_WIDTH // 2 + BOARD_SIZE * CELL_SIZE // 2 - text_computer_board.get_width() // 2, 25))
             draw_board(screen, player_board, 50, 100, is_player=True)
-            draw_board(screen, computer_board, SCREEN_WIDTH // 2, 100, hide_ships=False)
+            draw_board(screen, computer_board, SCREEN_WIDTH // 2, 100, hide_ships=True)
             sorted_ships = sorted(placed_ships_computer, key=lambda ship: ship[2], reverse=True)
 
             fill_colors = []
@@ -219,10 +219,12 @@ def main():
             for x, y, size, orientation in placed_ships_computer:
                 if is_ship_sunk(computer_board, x, y, size, orientation):
                     highlight_sunk_ship(screen, x, y, size, orientation, SCREEN_WIDTH // 2, 100)
+                    mark_surrounding_as_missed(computer_board, x, y, size, orientation)
 
             for x, y, size, orientation in placed_ships:
                 if is_ship_sunk(player_board, x, y, size, orientation):
                     highlight_sunk_ship(screen, x, y, size, orientation, 50, 100)
+                    mark_surrounding_as_missed(player_board, x, y, size, orientation)
 
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:

@@ -9,7 +9,8 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 RULES = [
-                "1. Place your ships on the board. You can rotate your ships by pressing `R`. You can also randomize their positions.",
+                "0. Easy mode - Computer takes shots randomly, Hard mode - when computer hits, it tries to sink your ship before proceeding.",
+                "1. Place your ships on the board. You can rotate your ships by holding it and pressing `R`. You can also randomize their positions.",
                 "2. Attack your enemy ships, by clicking it's board.",
                 "3. Field with red cross means, that you've hit a ship, but it has not sunk yet.",
                 "4. Red ship means, that ship sank.",
