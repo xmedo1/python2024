@@ -1,12 +1,6 @@
 from board import *
 import random
 
-# Global vars for hard mode logic
-target_mode = False
-target_start = None
-target_direction = None
-target_candidates = []
-
 
 def add_ships_from_random_board(board, placed_ships):
     """
@@ -161,76 +155,75 @@ def is_valid_target(x, y, board):
     return 0 <= x < BOARD_SIZE and 0 <= y < BOARD_SIZE and board[x][y] not in (-1, -2)
 
 
-def computer_shot_hard(board):
+def computer_shot_hard(state):
     """
         Executes a smart shot on the board in hard mode. After hitting a ship, it targets nearby cells to try to sink the ship.
 
         Args:
-            board (list[list[int]]): Two-dimensional list representing the state of the board.
+            state (GameState): The current game state.
 
         Returns:
             None
     """
-    global target_mode, target_start, target_direction, target_candidates, first_hit_point, checked_directions
-    if target_mode:
+    if state.target_mode:
         while True:
-            if target_direction:
-                if target_direction == "up":
-                    nx, ny = target_start[0] - 1, target_start[1]
-                elif target_direction == "down":
-                    nx, ny = target_start[0] + 1, target_start[1]
-                elif target_direction == "left":
-                    nx, ny = target_start[0], target_start[1] - 1
-                elif target_direction == "right":
-                    nx, ny = target_start[0], target_start[1] + 1
+            if state.target_direction:
+                if state.target_direction == "up":
+                    nx, ny = state.target_start[0] - 1, state.target_start[1]
+                elif state.target_direction == "down":
+                    nx, ny = state.target_start[0] + 1, state.target_start[1]
+                elif state.target_direction == "left":
+                    nx, ny = state.target_start[0], state.target_start[1] - 1
+                elif state.target_direction == "right":
+                    nx, ny = state.target_start[0], state.target_start[1] + 1
 
-                if is_valid_target(nx, ny, board):
-                    result = process_shot(board, nx, ny)
+                if is_valid_target(nx, ny, state.player_board):
+                    result = process_shot(state.player_board, nx, ny)
                     if result == "hit":
-                        target_start = (nx, ny)
+                        state.target_start = (nx, ny)
                         return
                     else:
-                        checked_directions.add(target_direction)
+                        state.checked_directions.add(state.target_direction)
                         directions = {
                             "up": "down",
                             "down": "up",
                             "left": "right",
                             "right": "left"
                         }
-                        if directions[target_direction] not in checked_directions:
-                            target_direction = directions[target_direction]
-                            target_start = first_hit_point
+                        if directions[state.target_direction] not in state.checked_directions:
+                            state.target_direction = directions[state.target_direction]
+                            state.target_start = state.first_hit_point
                         else:
-                            target_direction = None
+                            state.target_direction = None
                         return
                 else:
-                    checked_directions.add(target_direction)
+                    state.checked_directions.add(state.target_direction)
                     directions = {
                         "up": "down",
                         "down": "up",
                         "left": "right",
                         "right": "left"
                     }
-                    if directions[target_direction] not in checked_directions:
-                        target_direction = directions[target_direction]
-                        target_start = first_hit_point
+                    if directions[state.target_direction] not in state.checked_directions:
+                        state.target_direction = directions[state.target_direction]
+                        state.target_start = state.first_hit_point
                     else:
-                        target_direction = None
+                        state.target_direction = None
                     continue
             else:
                 directions = [
-                    (target_start[0] - 1, target_start[1], "up"),
-                    (target_start[0] + 1, target_start[1], "down"),
-                    (target_start[0], target_start[1] - 1, "left"),
-                    (target_start[0], target_start[1] + 1, "right")
+                    (state.target_start[0] - 1, state.target_start[1], "up"),
+                    (state.target_start[0] + 1, state.target_start[1], "down"),
+                    (state.target_start[0], state.target_start[1] - 1, "left"),
+                    (state.target_start[0], state.target_start[1] + 1, "right")
                 ]
                 for nx, ny, direction in directions:
-                    if is_valid_target(nx, ny, board) and direction not in checked_directions:
-                        target_candidates.append((nx, ny))
-                        target_direction = direction
+                    if is_valid_target(nx, ny, state.player_board) and direction not in state.checked_directions:
+                        state.target_candidates.append((nx, ny))
+                        state.target_direction = direction
                         break
                 else:
-                    target_mode = False
+                    state.target_mode = False
                     break
             return
 
@@ -238,17 +231,17 @@ def computer_shot_hard(board):
     while True:
         x = random.randint(0, BOARD_SIZE - 1)
         y = random.randint(0, BOARD_SIZE - 1)
-        if is_valid_target(x, y, board):
-            result = process_shot(board, x, y)
+        if is_valid_target(x, y, state.player_board):
+            result = process_shot(state.player_board, x, y)
             if result == "hit":
-                target_mode = True
-                target_start = (x, y)
-                first_hit_point = target_start
-                checked_directions = set()
+                state.target_mode = True
+                state.target_start = (x, y)
+                state.first_hit_point = state.target_start
+                state.checked_directions = set()
                 directions = [(x - 1, y, "up"), (x + 1, y, "down"), (x, y - 1, "left"), (x, y + 1, "right")]
                 for nx, ny, direction in directions:
-                    if is_valid_target(nx, ny, board):
-                        target_candidates.append((nx, ny))
-                        target_direction = direction
+                    if is_valid_target(nx, ny, state.player_board):
+                        state.target_candidates.append((nx, ny))
+                        state.target_direction = direction
                         break
             return

@@ -65,11 +65,11 @@ def handle_start_screen(screen, state):
             mouse_x, mouse_y = event.pos
             if button_easy.collidepoint(mouse_x, mouse_y):
                 print("Easy Mode selected")
-                state.computer_shot = computer_shot_easy
+                state.computer_shot_mode = "easy"
                 state.game_state = "setup"
             elif button_hard.collidepoint(mouse_x, mouse_y):
                 print("Hard Mode selected")
-                state.computer_shot = computer_shot_hard
+                state.computer_shot_mode = "hard"
                 state.game_state = "setup"
             elif button_rules.collidepoint(mouse_x, mouse_y):
                 print("Rules selected")
@@ -279,7 +279,10 @@ def handle_gameplay_screen(screen, state):
                     process_shot(state.computer_board, grid_y, grid_x)
                     state.current_turn = "computer"
     if state.current_turn == "computer":
-        state.computer_shot(state.player_board)
+        if state.computer_shot_mode == "easy":
+            computer_shot_easy(state.player_board)
+        elif state.computer_shot_mode == "hard":
+            computer_shot_hard(state)
         state.current_turn = "player"
     return True
 

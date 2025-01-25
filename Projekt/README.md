@@ -38,7 +38,7 @@ python3 main.py
 
 ---
 ## Struktura
-Program składa się z sześciu modułów.
+Program składa się z siedmiu modułów.
 ### `constants.py`
 Moduł `constants.py` zawiera stałe, używane w projekcie. Znajdują się tam:
 - `BOARD_SIZE` - rozmiar planszy do gry (ilość kolumn i rzędów) - domyślnie w grze w statki jest to pole 10x10
@@ -49,6 +49,9 @@ Moduł `constants.py` zawiera stałe, używane w projekcie. Znajdują się tam:
 
 ### `game_state.py`
 Klasa przechowująca informacje o obecnym stanie gry.
+
+### `running_states.py`
+Logika funkcji main, obsługuje, jak zachowuje się aplikacja podczas każdego ekranu (`setup`, `start`,`gameplay`...)
 
 ### `gui.py`
 Moduł `gui.py` jest odpowiedzialny za wyświetlanie GUI. Zawiera takie funkcje, jak:
@@ -78,3 +81,6 @@ Zawiera logikę gry, w tym funkcje obsługujące tury graczy, rozpoznawanie traf
 
 ### `main.py`
 Główny moduł, który uruchamia grę, zarządza stanem aplikacji i obsługuje interakcję z użytkownikiem
+
+---
+Autor: Nikodem Piechulski
