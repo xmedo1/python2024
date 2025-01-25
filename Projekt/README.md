@@ -4,6 +4,12 @@
 ## Opis projektu
 Battleships to implementacja klasycznej gry w statki stworzona w całości w języku Python przy pomocy biblioteki [pygame](https://www.pygame.org/). Aplikacja umożliwia rozgrywkę przeciwko komputerowi w dwóch trybach trudności.
 
+### Wymagania i uruchomieine
+Do uruchomienia projektu potrzebny jest moduł `pygame`. Można go zainstalować w następujący sposób:
+```bash
+pip install pygame
+```
+
 Aby uruchomić grę, należy wykonać polecenie:
 ```bash
 python3 main.py
