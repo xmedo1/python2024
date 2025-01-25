@@ -28,6 +28,8 @@ def main():
     font = pygame.font.SysFont(None, 36)
     text_player_board = font.render("Your board", True, BLACK)
     text_computer_board = font.render("Computer's board", True, BLACK)
+    show_warning = False
+    warning_timer = 0
 
     running = True
     while running:
@@ -88,7 +90,10 @@ def main():
             draw_board(screen, player_board, 300, 100)
             draw_board(screen, computer_board, SCREEN_WIDTH // 2 + 200, 100, hide_ships=True)
             button_randomize = draw_button(screen, "Randomize", 300, SCREEN_HEIGHT - 100, 150, 40)
-            button_start_game = draw_button(screen, "Start game", 650, SCREEN_HEIGHT - 100, 150, 40)
+            if len(ships_to_drag) == 0:
+                button_start_game = draw_button(screen, "Start game", 650, SCREEN_HEIGHT - 100, 150, 40, color=GREEN)
+            else:
+                button_start_game = draw_button(screen, "Start game", 650, SCREEN_HEIGHT - 100, 150, 40, color=GRAY)
             draw_ships_to_drag(screen, ships_to_drag, ship_drag_positions)
 
             for placed_ship in placed_ships:
@@ -114,6 +119,16 @@ def main():
                 pygame.draw.rect(screen, BLUE, rect)
                 pygame.draw.rect(screen, BLACK, rect, 1)
 
+            if show_warning:
+                font_warning = pygame.font.SysFont(None, 28)
+                text_warning = font_warning.render("You have to place all your ships!", True, RED)
+                text_warning_rect = text_warning.get_rect(center=(725, SCREEN_HEIGHT - 50))
+                screen.blit(text_warning, text_warning_rect)
+
+                warning_timer -= 1
+                if warning_timer <= 0:
+                    show_warning = False
+
             # Events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -126,7 +141,11 @@ def main():
                         add_ships_from_random_board(player_board, placed_ships)
                         ships_to_drag.clear()
                     elif button_start_game.collidepoint(mouse_x, mouse_y):
-                        print("Game is trying to start...")
+                        if len(ships_to_drag) == 0:
+                            game_state = "gameplay"
+                        else:
+                            show_warning = True
+                            warning_timer = 300
 
                     for idx, (x, y, size, orientation) in enumerate(placed_ships):
                         for i in range(size):
@@ -179,12 +198,6 @@ def main():
                                 ships_to_drag.append(size)
                         selected_ship = None
 
-                    if button_start_game.collidepoint(mouse_x, mouse_y):
-                        if len(ships_to_drag) != 0:
-                            print("You have to place all of your ships!")
-                        else:
-                            print("Game has begun!")
-                            game_state = "gameplay"
         elif game_state == "gameplay":
             screen.fill(WHITE)
             if winner is None:
