@@ -1,14 +1,14 @@
 # Battleships
-## Opis projektu
 
 ---
+## Opis projektu
 Battleships to implementacja klasycznej gry w statki stworzona w całości w języku Python przy pomocy biblioteki [pygame](https://www.pygame.org/). Aplikacja umożliwia rozgrywkę przeciwko komputerowi w dwóch trybach trudności.
-
 
 Aby uruchomić grę, należy wykonać polecenie:
 ```bash
 python3 main.py
 ```
+---
 
 ## Funkcjonalności
 
@@ -36,11 +36,41 @@ python3 main.py
 6. Ekran końca gry
    - Po zakończeniu rozgrywki użytkownik może rozpocząć kolejną rozgrywkę, klikając w przycisk `Play again` lub zakończyć działanie aplikacji przyciskiem `Exit`.
 
-
+---
 ## Struktura
 Program składa się z pięciu modułów.
-- `constants.py` - przechowuje wszystkie stałe, używane w projekcie.
-- `gui.py` - moduł odpowiedzialny za wyświetlanie GUI.
-- `board.py` - odpowiada za logikę związaną z zarządzaniem planszą oraz rozmieszczaniem statków.
-- `game_logic.py` - zawiera logikę gry, w tym funkcje obsługujące tury graczy, rozpoznawanie trafień i zatopionych statków oraz logikę komputera
 - `main.py` - główny moduł, który uruchamia grę, zarządza stanem aplikacji i obsługuje interakcję z użytkownikiem
+
+### `constants.py`
+Moduł `constants.py` zawiera stałe, używane w projekcie. Znajdują się tam:
+- `BOARD_SIZE` - rozmiar planszy do gry (ilość kolumn i rzędów) - domyślnie w grze w statki jest to pole 10x10
+- `CELL_SIZE` - rozmiar jednej komórki na planszy [px]
+- `SCREEN_WIDTH`, `SCREEN_HEIGHT` - rozmiar wyświetlanego okna [px]
+- definicje kolorów w RGB
+- tekst zasad (`RULES`)
+
+### `gui.py`
+Moduł `gui.py` jest odpowiedzialny za wyświetlanie GUI. Zawiera takie funkcje, jak:
+- `draw_board` - Rysuje planszę i statki (wraz z trafieniami, bądź pudłami) na ekranie.
+- `draw_button` - Rysuje interaktywne przyciski.
+- `draw_ships_side` - Rysuje statki obok planszy.
+- `highlight_sunk_ship` - Podświetla zatopione statki na planszy.
+
+### `board.py`
+Odpowiada za logikę związaną z zarządzaniem planszą oraz rozmieszczaniem statków.
+- `is_safe` - Sprawdza, czy w danej komórce można umieścić statek.
+- `can_place_ship` - Sprawdza, czy statek może zostać umieszczony we wskazanej pozycji na planszy.
+- `place_ship` - Umieszcza statek na planszy we wskazanej pozycji.
+- `generate_random_board` - Generuje losową konfigurację planszy ze statkami umieszczonymi zgodnie z zasadami gry.
+- `clear_ship_from_board` - Usuwa statek z planszy, resetując zajęte przez niego komórki do `0`.
+
+### `game_logic.py`
+Zawiera logikę gry, w tym funkcje obsługujące tury graczy, rozpoznawanie trafień i zatopionych statków oraz logikę komputera.
+- `add_ships_from_random_board` - Konwertuje układ statków losowej planszy na listę umieszczonych statków.
+- `is_ship_sunk` - Sprawdza, czy statek w podanej pozycji został zatopiony.
+- `process_shot` - Przetwarza strzał na planszy.
+- `computer_shot_easy` - Wykonuje losowy strzał na planszę w trybie łatwym.
+- `check_victory` - Sprawdza, czy wszystkie statki na planszy zostały zatopione.
+- `mark_surrounding_as_missed` - Oznacza otaczające komórki zatopionego statku jako `pudło`.
+- `is_valid_target` - Sprawdza, czy podane współrzędne są prawidłowym celem strzału. Używane tylko w trybie trudnym.
+- `computer_shot_hard` - Wykonuje inteligentny strzał na planszy w trybie trudnym. Po trafieniu statku celuje w pobliskie cele, próbując go zatopić.
