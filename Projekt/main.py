@@ -94,7 +94,7 @@ def main():
                 button_start_game = draw_button(screen, "Start game", 650, SCREEN_HEIGHT - 100, 150, 40, color=GREEN)
             else:
                 button_start_game = draw_button(screen, "Start game", 650, SCREEN_HEIGHT - 100, 150, 40, color=GRAY)
-            draw_ships_to_drag(screen, ships_to_drag, ship_drag_positions)
+            draw_ships_side(screen, ships_to_drag, ship_drag_positions)
 
             for placed_ship in placed_ships:
                 x, y, size, orientation = placed_ship
@@ -228,7 +228,7 @@ def main():
             screen.blit(text_remaining_ships, text_rect)
 
             for i, ship_size in enumerate([ship[2] for ship in sorted_ships]):
-                draw_ships_to_drag(screen, [ship_size], [], offset_x=SCREEN_WIDTH - 225,
+                draw_ships_side(screen, [ship_size], [], offset_x=SCREEN_WIDTH - 225,
                                    offset_y=100 + i * (CELL_SIZE + 10), fill_color=fill_colors[i])
 
             for x, y, size, orientation in placed_ships_computer:
