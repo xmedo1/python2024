@@ -21,7 +21,7 @@ def main():
     pygame.display.set_caption("Battleships game")
     clock = pygame.time.Clock()
 
-    global player_board, computer_board, placed_ships, placed_ships_computer, ships_to_drag, current_turn, selected_ship, selected_offset, ship_orientation, game_state, winner
+    global player_board, computer_board, placed_ships, placed_ships_computer, ships_to_drag, current_turn, selected_ship, selected_offset, ship_orientation, game_state, winner, mode, computer_shot_fn
 
     add_ships_from_random_board(player_board, placed_ships)
     add_ships_from_random_board(computer_board, placed_ships_computer)
@@ -49,10 +49,12 @@ def main():
                     mouse_x, mouse_y = event.pos
                     if button_easy.collidepoint(mouse_x, mouse_y):
                         print("Easy Mode selected")
+                        computer_shot_fn = computer_shot
                         game_state = "setup"
                     elif button_hard.collidepoint(mouse_x, mouse_y):
                         print("Hard Mode selected")
-                        game_state = "setup"  # TODO: add hard mode
+                        computer_shot_fn = computer_shot_hard
+                        game_state = "setup"
                     elif button_rules.collidepoint(mouse_x, mouse_y):
                         print("Rules selected")
                         game_state = "rules"
@@ -241,7 +243,7 @@ def main():
                                 current_turn = "computer"
 
                 if current_turn == "computer":
-                    computer_shot(player_board)
+                    computer_shot_fn(player_board)
                     current_turn = "player"
         elif game_state == "end":
             screen.fill(WHITE)

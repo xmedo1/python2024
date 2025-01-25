@@ -1,6 +1,11 @@
 from board import *
 import random
 
+target_mode = False
+target_start = None
+target_direction = None
+target_candidates = []
+
 
 def is_safe_to_place(board, x, y, size, orientation):
     for i in range(size):
@@ -79,6 +84,7 @@ def check_victory(board, placed_ships):
             return False
     return True
 
+
 def mark_surrounding_as_missed(board, x, y, size, orientation):
     for i in range(-1, size + 1):
         for dx in [-1, 0, 1]:
@@ -90,3 +96,91 @@ def mark_surrounding_as_missed(board, x, y, size, orientation):
                 if 0 <= nx < BOARD_SIZE and 0 <= ny < BOARD_SIZE:
                     if board[nx][ny] == 0:
                         board[nx][ny] = -2
+
+
+def is_valid_target(x, y, board):
+    return 0 <= x < BOARD_SIZE and 0 <= y < BOARD_SIZE and board[x][y] not in (-1, -2)
+
+
+def computer_shot_hard(board):
+    global target_mode, target_start, target_direction, target_candidates, first_hit_point, checked_directions
+    if target_mode:
+        while True:
+            if target_direction:
+                if target_direction == "up":
+                    nx, ny = target_start[0] - 1, target_start[1]
+                elif target_direction == "down":
+                    nx, ny = target_start[0] + 1, target_start[1]
+                elif target_direction == "left":
+                    nx, ny = target_start[0], target_start[1] - 1
+                elif target_direction == "right":
+                    nx, ny = target_start[0], target_start[1] + 1
+
+                if is_valid_target(nx, ny, board):
+                    result = process_shot(board, nx, ny)
+                    if result == "hit":
+                        target_start = (nx, ny)
+                        return
+                    else:
+                        checked_directions.add(target_direction)
+                        directions = {
+                            "up": "down",
+                            "down": "up",
+                            "left": "right",
+                            "right": "left"
+                        }
+                        if directions[target_direction] not in checked_directions:
+                            target_direction = directions[target_direction]
+                            target_start = first_hit_point
+                        else:
+                            target_direction = None
+                        return
+                else:
+                    checked_directions.add(target_direction)
+                    directions = {
+                        "up": "down",
+                        "down": "up",
+                        "left": "right",
+                        "right": "left"
+                    }
+                    if directions[target_direction] not in checked_directions:
+                        target_direction = directions[target_direction]
+                        target_start = first_hit_point
+                    else:
+                        target_direction = None
+                    continue
+            else:
+                directions = [
+                    (target_start[0] - 1, target_start[1], "up"),
+                    (target_start[0] + 1, target_start[1], "down"),
+                    (target_start[0], target_start[1] - 1, "left"),
+                    (target_start[0], target_start[1] + 1, "right")
+                ]
+                for nx, ny, direction in directions:
+                    if is_valid_target(nx, ny, board) and direction not in checked_directions:
+                        target_candidates.append((nx, ny))
+                        target_direction = direction
+                        break
+                else:
+                    target_mode = False
+                    break
+            return
+
+    # Random mode
+    while True:
+        x = random.randint(0, BOARD_SIZE - 1)
+        y = random.randint(0, BOARD_SIZE - 1)
+        if is_valid_target(x, y, board):
+            result = process_shot(board, x, y)
+            if result == "hit":
+                target_mode = True
+                target_start = (x, y)
+                first_hit_point = target_start
+                checked_directions = set()
+                directions = [(x - 1, y, "up"), (x + 1, y, "down"), (x, y - 1, "left"), (x, y + 1, "right")]
+                for nx, ny, direction in directions:
+                    if is_valid_target(nx, ny, board):
+                        target_candidates.append((nx, ny))
+                        target_direction = direction
+                        break
+            return

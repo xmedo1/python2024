@@ -1,5 +1,5 @@
 import random
-from constants import BOARD_SIZE
+from constants import *
 
 
 def is_safe(board, x, y):
