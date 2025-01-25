@@ -38,9 +38,7 @@ python3 main.py
 
 ---
 ## Struktura
-Program składa się z pięciu modułów.
-- `main.py` - główny moduł, który uruchamia grę, zarządza stanem aplikacji i obsługuje interakcję z użytkownikiem
-
+Program składa się z sześciu modułów.
 ### `constants.py`
 Moduł `constants.py` zawiera stałe, używane w projekcie. Znajdują się tam:
 - `BOARD_SIZE` - rozmiar planszy do gry (ilość kolumn i rzędów) - domyślnie w grze w statki jest to pole 10x10
@@ -48,6 +46,9 @@ Moduł `constants.py` zawiera stałe, używane w projekcie. Znajdują się tam:
 - `SCREEN_WIDTH`, `SCREEN_HEIGHT` - rozmiar wyświetlanego okna [px]
 - definicje kolorów w RGB
 - tekst zasad (`RULES`)
+
+### `game_state.py`
+Klasa przechowująca informacje o obecnym stanie gry.
 
 ### `gui.py`
 Moduł `gui.py` jest odpowiedzialny za wyświetlanie GUI. Zawiera takie funkcje, jak:
@@ -74,3 +75,6 @@ Zawiera logikę gry, w tym funkcje obsługujące tury graczy, rozpoznawanie traf
 - `mark_surrounding_as_missed` - Oznacza otaczające komórki zatopionego statku jako `pudło`.
 - `is_valid_target` - Sprawdza, czy podane współrzędne są prawidłowym celem strzału. Używane tylko w trybie trudnym.
 - `computer_shot_hard` - Wykonuje inteligentny strzał na planszy w trybie trudnym. Po trafieniu statku celuje w pobliskie cele, próbując go zatopić.
+
+### `main.py`
+Główny moduł, który uruchamia grę, zarządza stanem aplikacji i obsługuje interakcję z użytkownikiem

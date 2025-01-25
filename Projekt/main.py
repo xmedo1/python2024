@@ -1,18 +1,6 @@
 from gui import *
 from game_logic import *
-
-player_board = [[0 for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
-computer_board = generate_random_board()
-placed_ships = []
-ship_drag_positions = []
-placed_ships_computer = []
-ships_to_drag = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
-selected_ship = None
-selected_offset = (0, 0)
-ship_orientation = "H"
-current_turn = "player"
-game_state = "start"
-winner = None
+from game_state import GameState
 
 
 def main():
@@ -20,20 +8,17 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Battleships game")
     clock = pygame.time.Clock()
+    state = GameState()
 
-    global player_board, computer_board, placed_ships, placed_ships_computer, ships_to_drag, current_turn, selected_ship, selected_offset, ship_orientation, game_state, winner, mode, computer_shot
-
-    add_ships_from_random_board(player_board, placed_ships)
-    add_ships_from_random_board(computer_board, placed_ships_computer)
+    add_ships_from_random_board(state.player_board, state.placed_ships)
+    add_ships_from_random_board(state.computer_board, state.placed_ships_computer)
     font = pygame.font.SysFont(None, 36)
     text_player_board = font.render("Your board", True, BLACK)
     text_computer_board = font.render("Computer's board", True, BLACK)
-    show_warning = False
-    warning_timer = 0
 
     running = True
     while running:
-        if game_state == "start":
+        if state.game_state == "start":
             screen.fill(WHITE)
             font_large = pygame.font.SysFont(None, 250)
             text_battleships = font_large.render("Battleships", True, BLACK)
@@ -52,15 +37,15 @@ def main():
                     if button_easy.collidepoint(mouse_x, mouse_y):
                         print("Easy Mode selected")
                         computer_shot = computer_shot_easy
-                        game_state = "setup"
+                        state.game_state = "setup"
                     elif button_hard.collidepoint(mouse_x, mouse_y):
                         print("Hard Mode selected")
                         computer_shot = computer_shot_hard
-                        game_state = "setup"
+                        state.game_state = "setup"
                     elif button_rules.collidepoint(mouse_x, mouse_y):
                         print("Rules selected")
-                        game_state = "rules"
-        elif game_state == "rules":
+                        state.game_state = "rules"
+        elif state.game_state == "rules":
             screen.fill(WHITE)
             font_title = pygame.font.SysFont(None, 48)
             text_title = font_title.render("Game rules", True, BLACK)
@@ -80,23 +65,23 @@ def main():
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_x, mouse_y = event.pos
                     if button_back.collidepoint(mouse_x, mouse_y):
-                        game_state = "start"
-        elif game_state == "setup":
+                        state.game_state = "start"
+        elif state.game_state == "setup":
             screen.fill(WHITE)
             screen.blit(text_player_board, (300 + BOARD_SIZE * CELL_SIZE // 2 - text_player_board.get_width() // 2, 25))
             screen.blit(text_computer_board,
                         (SCREEN_WIDTH // 2 + 200 + BOARD_SIZE * CELL_SIZE // 2 - text_computer_board.get_width() // 2,
                          25))
-            draw_board(screen, player_board, 300, 100)
-            draw_board(screen, computer_board, SCREEN_WIDTH // 2 + 200, 100, hide_ships=True)
+            draw_board(screen, state.player_board, 300, 100)
+            draw_board(screen, state.computer_board, SCREEN_WIDTH // 2 + 200, 100, hide_ships=True)
             button_randomize = draw_button(screen, "Randomize", 300, SCREEN_HEIGHT - 100, 150, 40)
-            if len(ships_to_drag) == 0:
+            if len(state.ships_to_drag) == 0:
                 button_start_game = draw_button(screen, "Start game", 650, SCREEN_HEIGHT - 100, 150, 40, color=GREEN)
             else:
                 button_start_game = draw_button(screen, "Start game", 650, SCREEN_HEIGHT - 100, 150, 40, color=GRAY)
-            draw_ships_side(screen, ships_to_drag, ship_drag_positions)
+            draw_ships_side(screen, state.ships_to_drag, state.ship_drag_positions)
 
-            for placed_ship in placed_ships:
+            for placed_ship in state.placed_ships:
                 x, y, size, orientation = placed_ship
                 for i in range(size):
                     rect = pygame.Rect(
@@ -108,26 +93,26 @@ def main():
                     pygame.draw.rect(screen, BLACK, rect, 1)
 
             # Draw dragged ship
-            if selected_ship:
-                ship_index, rect, is_from_board, size, orientation = selected_ship
+            if state.selected_ship:
+                ship_index, rect, is_from_board, size, orientation = state.selected_ship
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 rect = pygame.Rect(
-                    mouse_x - selected_offset[0], mouse_y - selected_offset[1],
+                    mouse_x - state.selected_offset[0], mouse_y - state.selected_offset[1],
                     size * CELL_SIZE if orientation == "H" else CELL_SIZE,
                     CELL_SIZE if orientation == "H" else size * CELL_SIZE
                 )
                 pygame.draw.rect(screen, BLUE, rect)
                 pygame.draw.rect(screen, BLACK, rect, 1)
 
-            if show_warning:
+            if state.show_warning:
                 font_warning = pygame.font.SysFont(None, 28)
                 text_warning = font_warning.render("You have to place all your ships!", True, RED)
                 text_warning_rect = text_warning.get_rect(center=(725, SCREEN_HEIGHT - 50))
                 screen.blit(text_warning, text_warning_rect)
 
-                warning_timer -= 1
-                if warning_timer <= 0:
-                    show_warning = False
+                state.warning_timer -= 1
+                if state.warning_timer <= 0:
+                    state.show_warning = False
 
             # Events
             for event in pygame.event.get():
@@ -137,17 +122,17 @@ def main():
                     mouse_x, mouse_y = event.pos
 
                     if button_randomize.collidepoint(mouse_x, mouse_y):
-                        player_board = generate_random_board()
-                        add_ships_from_random_board(player_board, placed_ships)
-                        ships_to_drag.clear()
+                        state.player_board = generate_random_board()
+                        add_ships_from_random_board(state.player_board, state.placed_ships)
+                        state.ships_to_drag.clear()
                     elif button_start_game.collidepoint(mouse_x, mouse_y):
-                        if len(ships_to_drag) == 0:
-                            game_state = "gameplay"
+                        if len(state.ships_to_drag) == 0:
+                            state.game_state = "gameplay"
                         else:
-                            show_warning = True
-                            warning_timer = 300
+                            state.show_warning = True
+                            state.warning_timer = 300
 
-                    for idx, (x, y, size, orientation) in enumerate(placed_ships):
+                    for idx, (x, y, size, orientation) in enumerate(state.placed_ships):
                         for i in range(size):
                             rect = pygame.Rect(
                                 300 + (y + i) * CELL_SIZE if orientation == "H" else 300 + y * CELL_SIZE,
@@ -155,68 +140,68 @@ def main():
                                 CELL_SIZE, CELL_SIZE
                             )
                             if rect.collidepoint(mouse_x, mouse_y):
-                                selected_ship = (idx, rect, True, size, orientation)
-                                selected_offset = (mouse_x - rect.x, mouse_y - rect.y)
-                                clear_ship_from_board(player_board, x, y, size, orientation)
-                                placed_ships.pop(idx)
+                                state.selected_ship = (idx, rect, True, size, orientation)
+                                state.selected_offset = (mouse_x - rect.x, mouse_y - rect.y)
+                                clear_ship_from_board(state.player_board, x, y, size, orientation)
+                                state.placed_ships.pop(idx)
                                 break
 
-                    for i, rect in enumerate(ship_drag_positions):
+                    for i, rect in enumerate(state.ship_drag_positions):
                         if rect.collidepoint(mouse_x, mouse_y):
-                            selected_ship = (i, rect, False, ships_to_drag[i], ship_orientation)
-                            selected_offset = (mouse_x - rect.x, mouse_y - rect.y)
+                            state.selected_ship = (i, rect, False, state.ships_to_drag[i], state.ship_orientation)
+                            state.selected_offset = (mouse_x - rect.x, mouse_y - rect.y)
                             break
 
                 # Rotate ship
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r and selected_ship:
-                        ship_index, rect, is_from_board, size, orientation = selected_ship
+                    if event.key == pygame.K_r and state.selected_ship:
+                        ship_index, rect, is_from_board, size, orientation = state.selected_ship
                         new_orientation = "V" if orientation == "H" else "H"
-                        selected_ship = (ship_index, rect, is_from_board, size, new_orientation)
+                        state.selected_ship = (ship_index, rect, is_from_board, size, new_orientation)
 
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    if selected_ship:
+                    if state.selected_ship:
                         mouse_x, mouse_y = event.pos
-                        ship_index, rect, is_from_board, size, orientation = selected_ship
+                        ship_index, rect, is_from_board, size, orientation = state.selected_ship
                         grid_x = (mouse_x - 300) // CELL_SIZE
                         grid_y = (mouse_y - 100) // CELL_SIZE
 
                         if 0 <= grid_x < BOARD_SIZE and 0 <= grid_y < BOARD_SIZE:
-                            if can_place_ship(player_board, grid_y, grid_x, size, orientation):
+                            if can_place_ship(state.player_board, grid_y, grid_x, size, orientation):
                                 for j in range(size):
                                     nx, ny = (grid_y, grid_x + j) if orientation == "H" else (grid_y + j, grid_x)
-                                    player_board[nx][ny] = size
-                                placed_ships.append((grid_y, grid_x, size, orientation))
+                                    state.player_board[nx][ny] = size
+                                state.placed_ships.append((grid_y, grid_x, size, orientation))
                                 if not is_from_board:
-                                    ships_to_drag.pop(ship_index)
+                                    state.ships_to_drag.pop(ship_index)
                             else:
                                 if is_from_board:
-                                    ships_to_drag.append(size)
+                                    state.ships_to_drag.append(size)
                         else:
                             if is_from_board:
-                                ships_to_drag.append(size)
-                        selected_ship = None
+                                state.ships_to_drag.append(size)
+                        state.selected_ship = None
 
-        elif game_state == "gameplay":
+        elif state.game_state == "gameplay":
             screen.fill(WHITE)
-            if winner is None:
-                if check_victory(computer_board, placed_ships_computer):
-                    winner = "player"
-                    game_state = "end"
-                elif check_victory(player_board, placed_ships):
-                    winner = "computer"
-                    game_state = "end"
+            if state.winner is None:
+                if check_victory(state.computer_board, state.placed_ships_computer):
+                    state.winner = "player"
+                    state.game_state = "end"
+                elif check_victory(state.player_board, state.placed_ships):
+                    state.winner = "computer"
+                    state.game_state = "end"
 
             screen.blit(text_player_board, (50 + BOARD_SIZE * CELL_SIZE // 2 - text_player_board.get_width() // 2, 25))
             screen.blit(text_computer_board, (
                 SCREEN_WIDTH // 2 + BOARD_SIZE * CELL_SIZE // 2 - text_computer_board.get_width() // 2, 25))
-            draw_board(screen, player_board, 50, 100, is_player=True)
-            draw_board(screen, computer_board, SCREEN_WIDTH // 2, 100, hide_ships=True)
-            sorted_ships = sorted(placed_ships_computer, key=lambda ship: ship[2], reverse=True)
+            draw_board(screen, state.player_board, 50, 100, is_player=True)
+            draw_board(screen, state.computer_board, SCREEN_WIDTH // 2, 100, hide_ships=True)
+            sorted_ships = sorted(state.placed_ships_computer, key=lambda ship: ship[2], reverse=True)
 
             fill_colors = []
             for x, y, size, orientation in sorted_ships:
-                if is_ship_sunk(computer_board, x, y, size, orientation):
+                if is_ship_sunk(state.computer_board, x, y, size, orientation):
                     fill_colors.append(RED)
                 else:
                     fill_colors.append(BLUE)
@@ -228,39 +213,39 @@ def main():
 
             for i, ship_size in enumerate([ship[2] for ship in sorted_ships]):
                 draw_ships_side(screen, [ship_size], [], offset_x=SCREEN_WIDTH - 225,
-                                   offset_y=100 + i * (CELL_SIZE + 10), fill_color=fill_colors[i])
+                                offset_y=100 + i * (CELL_SIZE + 10), fill_color=fill_colors[i])
 
-            for x, y, size, orientation in placed_ships_computer:
-                if is_ship_sunk(computer_board, x, y, size, orientation):
+            for x, y, size, orientation in state.placed_ships_computer:
+                if is_ship_sunk(state.computer_board, x, y, size, orientation):
                     highlight_sunk_ship(screen, x, y, size, orientation, SCREEN_WIDTH // 2, 100)
-                    mark_surrounding_as_missed(computer_board, x, y, size, orientation)
+                    mark_surrounding_as_missed(state.computer_board, x, y, size, orientation)
 
-            for x, y, size, orientation in placed_ships:
-                if is_ship_sunk(player_board, x, y, size, orientation):
+            for x, y, size, orientation in state.placed_ships:
+                if is_ship_sunk(state.player_board, x, y, size, orientation):
                     highlight_sunk_ship(screen, x, y, size, orientation, 50, 100)
-                    mark_surrounding_as_missed(player_board, x, y, size, orientation)
+                    mark_surrounding_as_missed(state.player_board, x, y, size, orientation)
 
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         running = False
-                    elif event.type == pygame.MOUSEBUTTONDOWN and current_turn == "player":
+                    elif event.type == pygame.MOUSEBUTTONDOWN and state.current_turn == "player":
                         mouse_x, mouse_y = event.pos
                         grid_x = (mouse_x - (SCREEN_WIDTH // 2)) // CELL_SIZE
                         grid_y = (mouse_y - 100) // CELL_SIZE
                         if 0 <= grid_x < BOARD_SIZE and 0 <= grid_y < BOARD_SIZE:
-                            if computer_board[grid_y][grid_x] in (-1, -2):
+                            if state.computer_board[grid_y][grid_x] in (-1, -2):
                                 print("You already shot here!")
                             else:
-                                process_shot(computer_board, grid_y, grid_x)
-                                current_turn = "computer"
+                                process_shot(state.computer_board, grid_y, grid_x)
+                                state.current_turn = "computer"
 
-                if current_turn == "computer":
-                    computer_shot(player_board)
-                    current_turn = "player"
-        elif game_state == "end":
+                if state.current_turn == "computer":
+                    computer_shot(state.player_board)
+                    state.current_turn = "player"
+        elif state.game_state == "end":
             screen.fill(WHITE)
             font = pygame.font.SysFont(None, 72)
-            if winner == "player":
+            if state.winner == "player":
                 text = font.render("You Won!", True, GREEN)
             else:
                 text = font.render("You Lost!", True, RED)
@@ -277,21 +262,9 @@ def main():
                     mouse_x, mouse_y = event.pos
                     if button_retry.collidepoint(mouse_x, mouse_y):
                         print("Restarting...")
-                        player_board[:] = [[0 for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
-                        computer_board[:] = generate_random_board()
-                        placed_ships.clear()
-                        placed_ships_computer.clear()
-                        add_ships_from_random_board(computer_board, placed_ships_computer)
-                        ships_to_drag[:] = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
-                        selected_ship = None
-                        selected_offset = (0, 0)
-                        ship_orientation = "H"
-                        current_turn = "player"
-                        game_state = "start"
-                        winner = None
+                        state.reset()
 
                     elif button_exit.collidepoint(mouse_x, mouse_y):
-                        print("Game ended")
                         running = False
 
         pygame.display.flip()
