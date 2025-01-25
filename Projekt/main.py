@@ -21,7 +21,7 @@ def main():
     pygame.display.set_caption("Battleships game")
     clock = pygame.time.Clock()
 
-    global player_board, computer_board, placed_ships, placed_ships_computer, ships_to_drag, current_turn, selected_ship, selected_offset, ship_orientation, game_state, winner, mode, computer_shot_fn
+    global player_board, computer_board, placed_ships, placed_ships_computer, ships_to_drag, current_turn, selected_ship, selected_offset, ship_orientation, game_state, winner, mode, computer_shot
 
     add_ships_from_random_board(player_board, placed_ships)
     add_ships_from_random_board(computer_board, placed_ships_computer)
@@ -51,11 +51,11 @@ def main():
                     mouse_x, mouse_y = event.pos
                     if button_easy.collidepoint(mouse_x, mouse_y):
                         print("Easy Mode selected")
-                        computer_shot_fn = computer_shot
+                        computer_shot = computer_shot_easy
                         game_state = "setup"
                     elif button_hard.collidepoint(mouse_x, mouse_y):
                         print("Hard Mode selected")
-                        computer_shot_fn = computer_shot_hard
+                        computer_shot = computer_shot_hard
                         game_state = "setup"
                     elif button_rules.collidepoint(mouse_x, mouse_y):
                         print("Rules selected")
@@ -181,9 +181,8 @@ def main():
                         grid_x = (mouse_x - 300) // CELL_SIZE
                         grid_y = (mouse_y - 100) // CELL_SIZE
 
-                        if 0 <= grid_x < BOARD_SIZE and 0 <= grid_y < BOARD_SIZE and (
-                                grid_x + size <= BOARD_SIZE if orientation == "H" else grid_y + size <= BOARD_SIZE):
-                            if is_safe_to_place(player_board, grid_y, grid_x, size, orientation):
+                        if 0 <= grid_x < BOARD_SIZE and 0 <= grid_y < BOARD_SIZE:
+                            if can_place_ship(player_board, grid_y, grid_x, size, orientation):
                                 for j in range(size):
                                     nx, ny = (grid_y, grid_x + j) if orientation == "H" else (grid_y + j, grid_x)
                                     player_board[nx][ny] = size
@@ -256,7 +255,7 @@ def main():
                                 current_turn = "computer"
 
                 if current_turn == "computer":
-                    computer_shot_fn(player_board)
+                    computer_shot(player_board)
                     current_turn = "player"
         elif game_state == "end":
             screen.fill(WHITE)

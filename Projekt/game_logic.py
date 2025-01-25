@@ -1,32 +1,24 @@
 from board import *
 import random
 
+# Global vars for hard mode logic
 target_mode = False
 target_start = None
 target_direction = None
 target_candidates = []
 
 
-def is_safe_to_place(board, x, y, size, orientation):
-    for i in range(size):
-        nx, ny = (x, y + i) if orientation == "H" else (x + i, y)
-        if ny >= BOARD_SIZE or nx >= BOARD_SIZE or board[nx][ny] != 0:
-            return False
-        for dx in [-1, 0, 1]:
-            for dy in [-1, 0, 1]:
-                cx, cy = nx + dx, ny + dy
-                if 0 <= cx < BOARD_SIZE and 0 <= cy < BOARD_SIZE and board[cx][cy] != 0:
-                    return False
-    return True
-
-
-def clear_ship_from_board(board, x, y, size, orientation):
-    for i in range(size):
-        nx, ny = (x, y + i) if orientation == "H" else (x + i, y)
-        board[nx][ny] = 0
-
-
 def add_ships_from_random_board(board, placed_ships):
+    """
+        Converts a random board's ship layout into a list of placed ships.
+
+        Args:
+            board (list[list[int]]): Two-dimensional list representing the state of the board.
+            placed_ships (list): A list to store information about placed ships.
+
+        Returns:
+            None
+    """
     placed_ships.clear()
     visited = [[False for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
     for x in range(BOARD_SIZE):
@@ -49,6 +41,19 @@ def add_ships_from_random_board(board, placed_ships):
 
 
 def is_ship_sunk(board, x, y, size, orientation):
+    """
+        Checks if a ship at the given position is sunk.
+
+        Args:
+            board (list[list[int]]): Two-dimensional list representing the state of the board.
+            x (int): The row index where the ship starts.
+            y (int): The column index where the ship starts.
+            size (int): Ship size.
+            orientation (str): Ship orientation ("H" - horizontal, "V" - vertical).
+
+        Returns:
+            bool: True if the ship is completely sunk, False otherwise.
+    """
     for i in range(size):
         nx, ny = (x, y + i) if orientation == "H" else (x + i, y)
         if board[nx][ny] > 0:
@@ -57,16 +62,36 @@ def is_ship_sunk(board, x, y, size, orientation):
 
 
 def process_shot(board, x, y):
-    if board[x][y] > 0:  # Hit
+    """
+       Processes a shot on the board.
+
+       Args:
+           board (list[list[int]]): Two-dimensional list representing the state of the board.
+           x (int): The row index of the shot.
+           y (int): The column index of the shot.
+
+       Returns:
+           str: "hit" if a ship was hit, "miss" if it was a miss, None if already shot there.
+    """
+    if board[x][y] > 0:
         board[x][y] = -1
         return "hit"
-    elif board[x][y] == 0:  # Miss
+    elif board[x][y] == 0:
         board[x][y] = -2
         return "miss"
-    return None  # Already shot
+    return None
 
 
-def computer_shot(board):
+def computer_shot_easy(board):
+    """
+        Executes a random shot on the board in easy mode.
+
+        Args:
+            board (list[list[int]]): Two-dimensional list representing the state of the board.
+
+        Returns:
+            None
+    """
     while True:
         x = random.randint(0, BOARD_SIZE - 1)
         y = random.randint(0, BOARD_SIZE - 1)
@@ -79,6 +104,16 @@ def computer_shot(board):
 
 
 def check_victory(board, placed_ships):
+    """
+        Checks if all ships on the board are sunk.
+
+        Args:
+            board (list[list[int]]): Two-dimensional list representing the state of the board.
+            placed_ships (list): A list of placed ships.
+
+        Returns:
+            bool: True if all ships are sunk, False if not.
+    """
     for x, y, size, orientation in placed_ships:
         if not is_ship_sunk(board, x, y, size, orientation):
             return False
@@ -86,6 +121,19 @@ def check_victory(board, placed_ships):
 
 
 def mark_surrounding_as_missed(board, x, y, size, orientation):
+    """
+        Marks the surrounding cells of a sunk ship as missed.
+
+        Args:
+            board (list[list[int]]): Two-dimensional list representing the state of the board.
+            x (int): The row index of the ship.
+            y (int): The column index of the ship.
+            size (int): Ship size.
+            orientation (str): Ship orientation ("H" - horizontal, "V" - vertical).
+
+        Returns:
+            None
+    """
     for i in range(-1, size + 1):
         for dx in [-1, 0, 1]:
             for dy in [-1, 0, 1]:
@@ -99,10 +147,30 @@ def mark_surrounding_as_missed(board, x, y, size, orientation):
 
 
 def is_valid_target(x, y, board):
+    """
+        Checks if the given coordinates are a valid target for a shot. Used only in hard mode.
+
+        Args:
+            x (int): The row index of the target.
+            y (int): The column index of the target.
+            board (list[list[int]]): Two-dimensional list representing the state of the board.
+
+        Returns:
+            bool: True if the target is valid, False if not.
+    """
     return 0 <= x < BOARD_SIZE and 0 <= y < BOARD_SIZE and board[x][y] not in (-1, -2)
 
 
 def computer_shot_hard(board):
+    """
+        Executes a smart shot on the board in hard mode. After hitting a ship, it targets nearby cells to try to sink the ship.
+
+        Args:
+            board (list[list[int]]): Two-dimensional list representing the state of the board.
+
+        Returns:
+            None
+    """
     global target_mode, target_start, target_direction, target_candidates, first_hit_point, checked_directions
     if target_mode:
         while True:
