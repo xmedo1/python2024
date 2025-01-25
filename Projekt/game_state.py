@@ -22,6 +22,7 @@ class GameState:
         self.game_state = "start"
         self.winner = None
         self.show_warning = False
+        self.computer_shot = None
         self.warning_timer = 0
 
     def reset(self):
@@ -39,4 +40,5 @@ class GameState:
         self.ship_orientation = "H"
         self.current_turn = "player"
         self.game_state = "start"
+        self.computer_shot = None
         self.winner = None
